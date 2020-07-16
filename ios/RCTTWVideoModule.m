@@ -204,7 +204,7 @@ RCT_REMAP_METHOD(setLocalAudioEnabled, enabled:(BOOL)enabled setLocalAudioEnable
 
 RCT_REMAP_METHOD(setLocalVideoEnabled, enabled:(BOOL)enabled setLocalVideoEnabledWithResolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject) {
-  if(self.localVideoTrack != nil){
+  if(self.localVideoTrack != nil && self.camera != nil){
       [self.localVideoTrack setEnabled:enabled];
       resolve(@(enabled));
   } else if(enabled) {
