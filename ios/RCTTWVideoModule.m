@@ -217,9 +217,17 @@ RCT_EXPORT_METHOD(unpublishLocalAudio) {
 
 RCT_REMAP_METHOD(setLocalAudioEnabled, enabled:(BOOL)enabled setLocalAudioEnabledWithResolver:(RCTPromiseResolveBlock)resolve
     rejecter:(RCTPromiseRejectBlock)reject) {
-  [self.localAudioTrack setEnabled:enabled];
-
-  resolve(@(enabled));
+//  [self.localAudioTrack setEnabled:enabled];
+//  resolve(@(enabled));
+    if(self.localAudioTrack != nil){
+        [self.localAudioTrack setEnabled:enabled];
+        resolve(@(enabled));
+    } else if(enabled) {
+        [self createLocalAudioTrack];
+        resolve(@true);
+    } else {
+        resolve(@false);
+    }
 }
 
 RCT_REMAP_METHOD(setLocalVideoEnabled, enabled:(BOOL)enabled setLocalVideoEnabledWithResolver:(RCTPromiseResolveBlock)resolve
@@ -232,6 +240,13 @@ RCT_REMAP_METHOD(setLocalVideoEnabled, enabled:(BOOL)enabled setLocalVideoEnable
       resolve(@true);
   } else {
       resolve(@false);
+  }
+}
+
+-(void)createLocalAudioTrack {
+  [self startLocalAudio];
+  if(self.localAudioTrack != nil){
+    [self publishLocalAudio];
   }
 }
 
@@ -387,9 +402,23 @@ RCT_EXPORT_METHOD(getStats) {
     }
 }
 
-RCT_EXPORT_METHOD(connect:(NSString *)accessToken roomName:(NSString *)roomName enableVideo:(BOOL *)enableVideo encodingParameters:(NSDictionary *)encodingParameters) {
+-(void)enableLocalAudioAtCreationTime:(BOOL *)enableAudio {
+    if(enableAudio){
+      if (self.localAudioTrack == nil) {
+          // We disabled video in a previous call, attempt to re-enable
+          [self startLocalAudio];
+      } else {
+          [self.localAudioTrack setEnabled:true];
+      }
+    } else {
+        [self stopLocalAudio];
+    }
+}
+
+RCT_EXPORT_METHOD(connect:(NSString *)accessToken roomName:(NSString *)roomName enableVideo:(BOOL *)enableVideo enableAudio:(BOOL *) enableAudio encodingParameters:(NSDictionary *)encodingParameters) {
 
   [self enableLocalVideoAtCreationTime: enableVideo];
+  [self enableLocalAudioAtCreationTime: enableAudio];
 
   TVIConnectOptions *connectOptions = [TVIConnectOptions optionsWithToken:accessToken block:^(TVIConnectOptionsBuilder * _Nonnull builder) {
     if (self.localVideoTrack) {
