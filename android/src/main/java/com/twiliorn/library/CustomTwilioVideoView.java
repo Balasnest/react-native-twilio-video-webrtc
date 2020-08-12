@@ -376,7 +376,7 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
             String roomName, String accessToken, boolean enableAudio, boolean enableVideo, boolean enableRemoteAudio) {
         this.roomName = roomName;
         this.accessToken = accessToken;
-        this.enableRemoteAudio = enableAudio;
+        this.enableRemoteAudio = enableRemoteAudio;
 
         // Share your microphone
         localAudioTrack = LocalAudioTrack.create(getContext(), enableAudio);
@@ -395,7 +395,7 @@ public class CustomTwilioVideoView extends View implements LifecycleEventListene
         /*
          * Create a VideoClient allowing you to connect to a Room
          */
-        setAudioFocus(enableAudio);
+        setAudioFocus(true);
         ConnectOptions.Builder connectOptionsBuilder = new ConnectOptions.Builder(this.accessToken);
 
         if (this.roomName != null) {
